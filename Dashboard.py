@@ -10,23 +10,31 @@ st.set_page_config(page_title = 'Superstore!!!', page_icon = ':bar_chart:', layo
 st.title(' :bar_chart: Sample SuperStore EDA')
 st.markdown('<style>div.block-container{padding-top: 3rem;}</style>',unsafe_allow_html=True)
 
-# How an user can upload the file 
+# Upload a file
+fl = st.file_uploader(":file_folder: Upload a file", type=["csv", "txt", "xlsx", "xls"])
 
-fl = st.file_uploader(":file_folder: Upload a file",type=(["csv","txt","xlsx","xls"]))
 if fl is not None:
     filename = fl.name
-    st.write(filename)
-    df = pd.read_csv(filename, encoding = "ISO-8859-1")
+    st.write("Uploaded file:", filename)
+
+    # Read file based on extension
+    if filename.endswith(".csv") or filename.endswith(".txt"):
+        df = pd.read_csv(fl, encoding="ISO-8859-1")
+    elif filename.endswith((".xlsx", ".xls")):
+        df = pd.read_excel(fl)
 else:
-    os.chdir(r"C:\Users\shali\Streamlit")
-    df = pd.read_csv("Superstore.csv", encoding = "ISO-8859-1")
-    
-# Ensure that the dates are parsed correctly with dayfirst=True
+    # Fallback to local file if nothing is uploaded
+    os.chdir(r"C:\Users\sheeb\Streamlit")
+    df = pd.read_csv("Superstore.csv", encoding="ISO-8859-1")
+
+# Parse dates
 df["Order Date"] = pd.to_datetime(df["Order Date"], dayfirst=True)
 
-# Getting the min and max date
-startDate = pd.to_datetime(df["Order Date"]).min()
-endDate = pd.to_datetime(df["Order Date"]).max()
+# Get min and max date
+startDate = df["Order Date"].min()
+endDate = df["Order Date"].max()
+
+st.write(f"Date range: {startDate.date()} to {endDate.date()}")
 
 col1, col2 = st.columns((2))
 
@@ -132,13 +140,28 @@ with st.expander("Summary_Table"):
     
 # Create a scatter plot
 data1 = px.scatter(filtered_df, x = "Sales", y = "Profit", size = "Quantity")
-data1['layout'].update(title="Relationship between Sales and Profits using Scatter Plot.",
-                       titlefont = dict(size=20),xaxis = dict(title="Sales",titlefont=dict(size=19)),
-                       yaxis = dict(title = "Profit", titlefont = dict(size=19)))
-st.plotly_chart(data1,use_container_width=True)
-
+data1.update_layout(
+    title=dict(
+        text="Relationship between Sales and Profits using Scatter Plot.",
+        font=dict(size=20)
+    ),
+    xaxis=dict(
+        title=dict(
+            text="Sales",
+            font=dict(size=19)
+        )
+    ),
+    yaxis=dict(
+        title=dict(
+            text="Profit",
+            font=dict(size=19)
+        )
+    )
+)
 with st.expander("View Data"):
     st.write(filtered_df.iloc[:500,1:20:2].style.background_gradient(cmap="Oranges"))
+
+st.plotly_chart(data1, use_container_width=True)
 
 # Download orginal DataSet
 csv = df.to_csv(index = False).encode('utf-8')
