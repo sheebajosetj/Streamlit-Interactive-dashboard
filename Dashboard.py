@@ -1,72 +1,90 @@
-import streamlit as st
-import plotly.express as plt
-import plotly.express as px
-import warnings
+import streamlit as st # For building the app interface
+import plotly.express as px #For creating interactive graphs
+import warnings #It suppresses all warning messages in your Python program.
 warnings.filterwarnings('ignore')
-import os
-import pandas as pd
+import os#For interacting with the file system
+import pandas as pd #For data handling and manipulation
 
-st.set_page_config(page_title = 'Superstore!!!', page_icon = ':bar_chart:', layout = 'wide')
-st.title(' :bar_chart: Sample SuperStore EDA')
-st.markdown('<style>div.block-container{padding-top: 3rem;}</style>',unsafe_allow_html=True)
+st.set_page_config(page_title = 'Superstore!!!', page_icon = ':bar_chart:', layout = 'wide')#page_title='Superstore!!!Sets the title that appears on the browser tab (like the tab name in Chrome)
+#page_icon=':bar_chart:Sets an emoji icon (📊) on the browser tab using emoji shortcodes.
+#layout='wide': Makes your app use the full width of the browser window instead of the default centered layout.
+st.title(' :bar_chart: Sample SuperStore EDA')#This sets the main page title displayed at the top of your app: , :bar_chart: is an emoji that renders as 📊
+
+
+st.markdown('<style>div.block-container{padding-top: 3rem;}</style>',unsafe_allow_html=True)#This line injects custom CSS styling to change the spacing at the top of the app.
 
 # Upload a file
-fl = st.file_uploader(":file_folder: Upload a file", type=["csv", "txt", "xlsx", "xls"])
-
-if fl is not None:
-    filename = fl.name
+fl = st.file_uploader(":file_folder: Upload a file", type=["csv", "txt", "xlsx", "xls"])#This line creates a file upload widget in your Streamlit app and allows the user to upload a file of specific types.
+#st.file_uploader(...) - This creates a file upload box in the app where users can select and upload a file
+#:file_folder: Upload a file - This is the label shown above the upload box. The emoji :file_folder: 📁 makes it look nice.
+#type=["csv", "txt", "xlsx", "xls"] This limits the allowed file types to:
+if fl is not None: # Checks if a file was uploaded using the upload button.
+    filename = fl.name # Extracts the file name and prints it on screen.
     st.write("Uploaded file:", filename)
 
     # Read file based on extension
-    if filename.endswith(".csv") or filename.endswith(".txt"):
-        df = pd.read_csv(fl, encoding="ISO-8859-1")
-    elif filename.endswith((".xlsx", ".xls")):
-        df = pd.read_excel(fl)
-else:
+    if filename.endswith(".csv") or filename.endswith(".txt"):#Runs only if the user uploads a file 
+        df = pd.read_csv(fl, encoding="ISO-8859-1")#Read the file into a dataframe 
+    elif filename.endswith((".xlsx", ".xls")):#if they are not the csv or txt then 
+        df = pd.read_excel(fl)# reads the files as excel file and places it into a dataframe 
+else: # Runs only if the user did not upload a file 
     # Fallback to local file if nothing is uploaded
-    os.chdir(r"C:\Users\sheeb\Streamlit")
-    df = pd.read_csv("Superstore.csv", encoding="ISO-8859-1")
+    os.chdir(r"C:\Users\sheeb\Streamlit") # if not it takes the file on the computer 
+    df = pd.read_csv("Superstore.csv", encoding="ISO-8859-1")#Reads them to the dataframe 
 
 # Parse dates
-df["Order Date"] = pd.to_datetime(df["Order Date"], dayfirst=True)
-
+df["Order Date"] = pd.to_datetime(df["Order Date"], dayfirst=True)#This line converts the "Order Date" column in your DataFrame df into actual date objects 
+#When you load data from a CSV/Excel file, date columns often come in as plain text (like "24-05-2023").
+#To work with them properly (like using filters or comparing dates), you must convert them into real date format.
+#The date is written in day-month-year format.
 # Get min and max date
-startDate = df["Order Date"].min()
-endDate = df["Order Date"].max()
+startDate = df["Order Date"].min() #Gets the earliest date from the "Order Date" column
+endDate = df["Order Date"].max() #Gets the latest date from the "Order Date" column
 
 st.write(f"Date range: {startDate.date()} to {endDate.date()}")
+# st.write(...)	Displays a message on the screen inside the app.
+# f"...{...}..."	An f-string → allows inserting variables into a string.
+# {startDate.date()}	Extracts just the date part (like 2023-05-10) from a full datetime object (removes the time part like 00:00:00).
+# {endDate.date()}	Same as above — just gives the clean end date.
 
-col1, col2 = st.columns((2))
+col1, col2 = st.columns((2)) #This line splits the Streamlit page into 2 side-by-side columns, and stores each column layout in col1 and col2.
 
-with col1:
-    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
+with col1:#with col1
+    date1 = pd.to_datetime(st.date_input("Start Date", startDate)) # creates start_date picker ,Do this action
 
 with col2:
-    date2 = pd.to_datetime(st.date_input("End Date", endDate))
+    date2 = pd.to_datetime(st.date_input("End Date", endDate))#creates end_date picker, Do this action
 
 # Filter the dataframe based on selected date range
-df = df[(df["Order Date"] >= date1) & (df["Order Date"] <= date2)].copy()
+df = df[(df["Order Date"] >= date1) & (df["Order Date"] <= date2)].copy()#It filters the dataframe to keep only the rows where the "Order Date" is between the selected start date (date1) and end date (date2).
+# copy() Makes a clean, separate copy of the filtered data (to avoid warning/errors later if you modify it)
 
-st.sidebar.header("Choose your filter: ")
+st.sidebar.header("Choose your filter: ")#It adds a bold heading called “Choose your filter:” to the left sidebar of your Streamlit app.
 # Create for Region
-region = st.sidebar.multiselect("Pick your Region", df["Region"].unique())
+region = st.sidebar.multiselect("Pick your Region", df["Region"].unique()) #It shows a multi-select dropdown in the left sidebar, where the user can choose one or more regions from the list in the data.
 
-if not region:
+# st.sidebar	Put this widget in the sidebar (left side)
+# .multiselect()	Show a dropdown where user can pick multiple options
+# "Pick your Region"	The label shown above the dropdown
+# df["Region"].unique()	Pulls all the unique region names from your data (like East, West, South, etc.)
+# region: It stores the selected values in a variable called region, so you can use it to filter your data later.
+
+if not region:#If the user didn’t select any region, then show all data.
     df2 = df.copy()
-else:
+else:#If they selected specific regions, then show only those rows
     df2 = df[df['Region'].isin(region)]
     
 # create for State
 
-state = st.sidebar.multiselect('Pick the State', df2['State'].unique())
-if not state:
-    df3 = df2.copy()
-else:
-    df3 = df2[df2['State'].isin(state)]
+state = st.sidebar.multiselect('Pick the State', df2['State'].unique())#This creates a multi-select dropdown in the sidebar
+if not state:#If no state is selected...
+    df3 = df2.copy()#Keep all states from the previous filtered data (df2)
+else:#If user did select some states...
+    df3 = df2[df2['State'].isin(state)]#Keep only rows with the selected states
 
 
     # Create for City
-city = st.sidebar.multiselect("Pick the City",df3["City"].unique())
+city = st.sidebar.multiselect("Pick the City",df3["City"].unique())#This shows a multi-select dropdown for cities,
 
 # Filter the data based on Region, State and City
 
