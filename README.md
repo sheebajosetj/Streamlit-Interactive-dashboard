@@ -18,22 +18,7 @@ Default fallback to local Superstore.csv (if no upload)
 
 ---
 
-## Dashboard Preview
-
-
----
-
-## File Structure
-
-superstore_dashboard/
-├── Superstore.csv
-├── app.py
-├── README.md
-└── requirements.txt
-
----
-
-## Setup Instructions
+## How to run
 
 1.**Clone the repository**  
    ```bash
@@ -55,7 +40,7 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py
 ```
-5. **View in your browser**
+5.**View in your browser**
 
 Streamlit will open the dashboard automatically. If not, go to http://localhost:8501.
 
