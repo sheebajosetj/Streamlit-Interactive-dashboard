@@ -35,7 +35,7 @@ superstore_dashboard/
 
 ## Setup Instructions
 
-1. **Clone the repository**  
+1.**Clone the repository**  
    ```bash
    git clone https://github.com/your-username/superstore-dashboard.git
    cd superstore-dashboard
@@ -55,6 +55,7 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py
 ```
-5,**View in your browser**
+5. **View in your browser**
+
 Streamlit will open the dashboard automatically. If not, go to http://localhost:8501.
 
