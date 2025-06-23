@@ -40,22 +40,21 @@ superstore_dashboard/
    git clone https://github.com/your-username/superstore-dashboard.git
    cd superstore-dashboard
    ```
-(Optional) Create a virtual environment
+2.**(Optional) Create a virtual environment**
 
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-Install dependencies
 ```
+3.**Install dependencies**
 ```bash
 pip install -r requirements.txt
-Run the app
-```
 
+```
+4.**Run the app**
 ```bash
 streamlit run app.py
 ```
-
-View in your browser
+5,**View in your browser**
 Streamlit will open the dashboard automatically. If not, go to http://localhost:8501.
 
